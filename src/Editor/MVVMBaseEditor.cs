@@ -39,11 +39,11 @@ public class MVVMBaseEditor : UnityEditor.Editor
         {
             UpdateSerializedProperties();
 
-            serializedObject.ApplyModifiedProperties();
-
             EditorUtility.SetDirty(target);
 
             CollectPropertyLists();
+
+            serializedObject.ApplyModifiedProperties();
         }
 
     }

@@ -14,7 +14,9 @@ namespace UnityMVVM.Editor
             {
                 values = value;
                 if (string.IsNullOrEmpty(Value))
+                {
                     Value = values.FirstOrDefault();
+                }
             }
         }
 
