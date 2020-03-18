@@ -448,7 +448,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ViewModelName: UnityMVVM.Examples.OtherViewModel
   SrcCollectionName: Collection2
-  CanSelectMultiple: 0
 --- !u!114 &519935618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -820,7 +819,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ViewModelName: UnityMVVM.Examples.OtherViewModel
   SrcCollectionName: Collection2
-  CanSelectMultiple: 0
 --- !u!114 &1755598735
 MonoBehaviour:
   m_ObjectHideFlags: 0

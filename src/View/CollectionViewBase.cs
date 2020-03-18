@@ -48,15 +48,6 @@ namespace UnityMVVM.View
         }
         public UnityEvent OnSelectionChanged { get; set; } = new UnityEvent();
 
-        public List<ICollectionViewItem> SelectedViewItems
-        {
-
-            get =>
-                InstantiatedItems
-                    .Select(e => e.GetComponent<ICollectionViewItem>())
-                    .Where(e => e.IsSelected).ToList();
-        }
-
         public List<IModel> SelectedItems
         {
             get => _selectedItems;
@@ -74,8 +65,6 @@ namespace UnityMVVM.View
                     _selectedItems.Clear();
             }
         }
-
-
 
         List<IModel> _selectedItems = new List<IModel>();
         private Delegate _changeDelegate;
@@ -100,10 +89,19 @@ namespace UnityMVVM.View
             var items = InstantiatedItems.Select(e => e.GetComponent<ICollectionViewItem>()).ToList();
 
             SelectedItem = isSelected ? selected : null;
-            items.ForEach(e => e.IsSelected = _selectedItems.Contains(e.Model));
+
+            items.ForEach(e =>
+            {
+                var model = e.Model;
+                if (model == null)
+                    Debug.LogError("Model is null");
+                if (e is ISelectable && model != null)
+                    (e as ISelectable).IsSelected = _selectedItems.Contains(model);
+            });
 
             if (isSelected && _dstCollection != null && !_dstCollection.Contains(selected))
                 _dstCollection.Add(selected);
+
             else if (!isSelected && _dstCollection != null && _dstCollection.Contains(selected))
                 _dstCollection.Remove(selected);
 
@@ -121,15 +119,18 @@ namespace UnityMVVM.View
             else
                 SelectedItems = SelectedItems.Intersect(selected).ToList();
 
-            items.ForEach(e => e.IsSelected = _selectedItems.Contains(e.Model));
+            items.ForEach(e =>
+            {
+                var model = e.Model;
+                if (e is ISelectable && model != null)
+                    (e as ISelectable).IsSelected = _selectedItems.Contains(model);
+
+            });
 
             OnSelectionChanged?.Invoke();
         }
 
-        protected virtual void UpdateElement(int index, IList newItems)
-        {
 
-        }
 
         public override void SetVisibility(Visibility visibility)
         {
@@ -185,22 +186,26 @@ namespace UnityMVVM.View
             var model = (item as IModel);
             if (model != null)
             {
-                var it = go.GetComponent<ICollectionViewItem>() as ICollectionViewItem;
+                var it = go.GetComponent<ICollectionViewItem>();
                 if (it != null)
                 {
-                    it.Model = model;
-                    it.Init(model);
+                    it.Init(model, index);
                 }
 
-                it.OnSelected += (m) =>
+                if (it is ISelectable)
                 {
-                    UpdateSelectedItem(m, true);
-                };
+                    var selectableItem = it as ISelectable;
+                    selectableItem.OnSelected += (caller, m) =>
+                    {
+                        UpdateSelectedItem((m as IModel), true);
+                    };
 
-                it.OnDeselected += (m) =>
-                {
-                    UpdateSelectedItem(m, false);
-                };
+                    selectableItem.OnDeselected += (caller, m) =>
+                    {
+                        UpdateSelectedItem((m as IModel), false);
+                    };
+                }
+
             }
         }
 
@@ -223,14 +228,6 @@ namespace UnityMVVM.View
             return go;
         }
 
-        protected virtual void AddElement(int index, object newItem)
-        {
-            var go = CreateCollectionItem(newItem, transform);
-            go.transform.SetSiblingIndex(index);
-
-            InstantiatedItems.Insert(index, go);
-        }
-
         protected virtual void AddElements(int newStartingIndex, IList newItems)
         {
             int idx = 0;
@@ -242,11 +239,47 @@ namespace UnityMVVM.View
 
                 gameObjects.Add(go);
 
-                InitItem(go, item, idx);
+                InitItem(go, item, newStartingIndex);
                 idx++;
             }
 
             InstantiatedItems.InsertRange(newStartingIndex, gameObjects);
+        }
+
+        protected virtual void UpdateElement(int index, IList newItems)
+        {
+            int idx = index;
+
+            if (idx < 0)
+                idx = 0;
+
+            foreach (var item in newItems)
+            {
+                //var go = InstantiatedItems[idx];
+                //var view = go.GetComponent<ICollectionViewItem>();
+                //var newModel = item as IModel;
+                //if (view != null && newModel != null)
+                //    view.Update(newModel);
+
+                //idx++;
+
+                //    var model = view.Model;
+                //    var newModel = newItems;
+
+                //    //view.Model = newItems[]
+
+
+
+                //    //go.transform.SetSiblingIndex(newStartingIndex);
+
+                //    gameObjects.Add(go);
+
+                //    InitItem(go, item, idx);
+                //    idx++;
+                //}
+
+                //InstantiatedItems.InsertRange(newStartingIndex, gameObjects);
+            }
         }
 
         protected virtual void RemoveElements(int oldStartingIndex, IList oldItems)

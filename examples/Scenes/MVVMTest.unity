@@ -2382,9 +2382,9 @@ MonoBehaviour:
   _visibility: 0
   _alpha: 0
   _fadeTime: 1
-  SelectedItemName: SelectedModel
+  SelectedItemName: --
   SelectedItemsName: 
-  _listItemPrefab: {fileID: 2719066888251376324, guid: 459b342aff4774c47856a51aefacde43,
+  _listItemPrefab: {fileID: 1576776248439620, guid: 06dac52260a02814dbfacec458252957,
     type: 3}
   _src: {fileID: 1755598734}
   CanSelectMultiple: 0

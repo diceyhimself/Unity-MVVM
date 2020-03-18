@@ -1,30 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityMVVM.Model;
+using UnityMVVM.View;
 
 namespace UnityMVVM.Examples
 {
-    public class ButtonItem : CollectionViewItemBase<DataModel>
+    public class ButtonItem : CollectionViewItemBase<DataModel>,
+        ISelectable
     {
-        public override IModel Model
+        public bool IsSelected
         {
-            get
-            {
-                return _model;
-            }
+            get => _isSelected;
             set
             {
-                _model = value;
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    SetSelected(value);
+                }
             }
         }
-        IModel _model;
+
+        bool _isSelected = false;
 
         public List<GameObject> _selectedItems;
         public List<GameObject> _unselectedItems;
 
         public UnityEvent OnClick { get; set; } = new UnityEvent();
+        public Action<object, object> OnSelected { get; set; }
+        public Action<object, object> OnDeselected { get; set; }
 
         private void Awake()
         {
@@ -32,27 +39,20 @@ namespace UnityMVVM.Examples
             {
                 OnClick?.Invoke();
                 if (!IsSelected)
-                    OnSelected?.Invoke(_model);
+                    OnSelected?.Invoke(this, Model);
                 else
-                    OnDeselected?.Invoke(_model);
+                    OnDeselected?.Invoke(this, Model);
             }));
         }
 
-        public override void Cleanup()
-        {
 
+        public override void InitItem(DataModel model, int idx)
+        {
+            GetComponent<Image>().color = model.color;
+            GetComponentInChildren<Text>().text = model.message;
         }
 
-        public override void Init(IModel model)
-        {
-            var data = model as DataModel;
-            Model = model;
-
-            GetComponent<Image>().color = data.color;
-            GetComponentInChildren<Text>().text = data.message;
-        }
-
-        public override void SetSelected(bool v)
+        public void SetSelected(bool v)
         {
             foreach (var item in _selectedItems)
             {
@@ -65,14 +65,16 @@ namespace UnityMVVM.Examples
         }
 
 
-        public override void UpdateItem(IModel model)
+        public override void UpdateItem(DataModel model, int newIdx)
         {
-            var data = model as DataModel;
 
-            GetComponent<Image>().color = data.color;
-            GetComponentInChildren<Text>().text = data.message;
+            GetComponent<Image>().color = model.color;
+            GetComponentInChildren<Text>().text = model.message;
         }
 
-
+        public IModel GetModel()
+        {
+            return Model;
+        }
     }
 }
