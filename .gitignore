@@ -36,7 +36,7 @@ sysinfo.txt
 *.unitypackage
 
 # Meta files
-*.meta
+#*.meta
 
 # Project Settings
 ProjectSettings
