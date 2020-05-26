@@ -97,10 +97,12 @@ namespace UnityMVVM.Binding
             }
             catch (Exception e)
             {
-                Debug.LogError("Data binding error in: " + _gameObject.name + ": " + e.Message);
+                //Debug.LogError("Data binding error in: " + _gameObject.name + ": " + e.Message);
 
-                if (e.InnerException != null)
-                    Debug.LogErrorFormat("Inner Exception: {0}", e.InnerException.Message);
+                //if (e.InnerException != null)
+                //    Debug.LogErrorFormat("Inner Exception: {0}", e.InnerException.Message);
+
+                throw e;
             }
         }
 
